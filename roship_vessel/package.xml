@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>template_pkg</name>
+  <name>roship_vessel</name>
   <version>1.0.0</version>
-  <description>A Template ROS2 Package </description>
-  <maintainer email="me@todo.com">@todo</maintainer>
-  <license>@todo</license>
+  <description>RoShip Vessel Package</description>
+  <maintainer email="kkrasnosky@gmail.com">Kristopher Krasnosky</maintainer>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend> template_pkg_interfaces </depend>
+  <depend>roship_vessel_interfaces</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

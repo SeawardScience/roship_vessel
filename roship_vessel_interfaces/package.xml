@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>template_pkg_interfaces</name>
+  <name>roship_vessel_interfaces</name>
   <version>0.1.0</version>
-  <description>template_pkg interface definitions</description>
-  <maintainer email="me@todo.com">@todo</maintainer>
-  <license>@todo</license>
+  <description>roship_vessel interface definitions</description>
+  <maintainer email="kkrasnosky@gmail.com">Kristopher Krasnosky</maintainer>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
