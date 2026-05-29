@@ -9,6 +9,11 @@ set(ROS_DEPENDS
     rclcpp
     std_msgs
     roship_vessel_interfaces
+    io_interfaces
+    diagnostic_updater
+    sensor_msgs
+    nav_msgs
+    geometry_msgs
   )
 
 set(EXTERNAL_DEPENDS

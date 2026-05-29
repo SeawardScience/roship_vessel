@@ -1,73 +1,93 @@
-# ROS2 Template C++ Package
-![alt text](docs/media/template_package.png)
-This package is was designed as a starting point for building a ROS2 C++ package with:
-- automatically configuring cmake file
-- pre-defined structures and conventions for namespacing and code structures
-- adherence to ROS2 design conventions
-- pre-included doxygen configuration with easy to use and stylish output
-- pre-defined github actions to build the documentation and deploy it to github.io
+# roship_vessel
 
-It is highly recomended that you complete the following checklist before you make public a repository derived from this package.
+ROS2 package for integrating common shipboard devices — winches, NMEA instruments,
+and similar — into the roship ecosystem.  It sits one layer above `roship_io`,
+which handles raw transport (serial, UDP, MQTT).  `roship_vessel` turns bytes into
+typed ROS messages and diagnostics.
 
-# Public Repository Checklist   
-
-## Requirements
-
-All public repositories for this organization must comply with the following checklist.  If they do not, an administrator will make your repository private until it complies. 
-
-- **README.md file:** Every package must have a README.md file in the root of the repository.  The readme must describe, at least, the following:
-  - The name of the package
-  - A few sentences briefly describing what the package is for
-  - Installation instructions detailed enough to be executed by a novice linux/ROS user
-  - A quick start guide or hello world
-  - A template [README.md](README.md) is available below.
-- **CONTRIBUTING.md file:** This file describes how to contribute to the project.  A default [CONTRIBUTING.md](CONTRIBUTING.md) is available here.  It can be modified as necessary.
-- **LICENSE file:** A license file should be included. (the licence file in this packag has some options)
-- **Semantic Versioning:** The repo must adhere to [Semantic Versioning 2.0](https://semver.org/).
-- **An initial tagged release:** 
-  - If the project is ready to ship  include initial release with `v1.0.0`
-  - Pre-release code may be shared and must be tagged as `v0.x.y`
-- **All code in the master branch must ALWAYS be deployable**
-
-## Highly Encouraged
-
-- **Adherence to our [Style Guide](style_guide):** This is especially recommended if you are starting a new project.  If you are migrating an old one, it can be overlooked.
-- **Use of GitFlow:** Follow our [guidelines on version control](version_control) for more info
-
-## Sugested
-- Issues template
-- Doxygen documentation for C++ code (a template can be foudn in this package)
-
-
-
-# README template  
-
-A few lines describing what your project is and what it does.   A picture of your software in action is highly recomended.
-
-## Installation
-
-how to install the package whitout compilation.
-
-## Compiling
-
-how to compile the package including dependencies and nicely formatted commands.  This section should be geared toward developers and collaborators.
+## Architecture
 
 ```
-sudo make install
+roship_io  (serial / UDP / MQTT connection node)
+    │  <connection_topic>  [io_interfaces/RawPacket]
+    ▼
+VesselDeviceNode  — base class (this package)
+    │  strip header, filter, parse
+    ▼
+Device node subclass
+    ├─ ~/tension, ~/speed, ~/payout …  [std_msgs/Float64]
+    └─ /diagnostics                    [diagnostic_msgs/DiagnosticArray]
 ```
 
-## Running the package
+## Packages
 
-A basic hello world use of your package
+| Package | Contents |
+|---------|----------|
+| `roship_vessel` | `VesselDeviceNode` base class + device node implementations |
+| `roship_vessel_interfaces` | Shared message definitions |
 
-## Parameters
+## Build
 
-a description of the ros parameters for your package.  It would be good to update the config directory too with some example yaml.
+```bash
+colcon build --packages-select roship_vessel_interfaces roship_vessel
+```
 
-## Services
+## Included device nodes
 
-a description of any ros services your package uses
+### `lci_winch` — Dynacon RPC/LCI winch monitor
+
+Parses the dsLog multiplexed winch stream (`01RD` records) and publishes:
+
+| Topic | Type | Description |
+|-------|------|-------------|
+| `~/tension` | `std_msgs/Float64` | Cable tension (pounds) |
+| `~/speed` | `std_msgs/Float64` | Pay-in/out speed (m/min) |
+| `~/payout` | `std_msgs/Float64` | Cable paid out (meters) |
+
+**Quick start:**
+
+```bash
+ros2 run roship_vessel lci_winch --ros-args \
+  -p connection_topic:=/udp_device/from_device \
+  -p strip_filter:="WNCH*RPC-90x"
+```
+
+Or with a launch file:
+
+```bash
+ros2 launch roship_vessel lci_winch_udp.launch.xml
+```
+
+Key parameters (see `config/lci_winch.yaml` for full list):
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `connection_topic` | `""` | `from_device` topic from the roship_io connection node |
+| `strip_filter` | `"WNCH*RPC-90x"` | Glob anchor that identifies and strips the dsLog header |
+| `validate_checksum` | `true` | Verify the ASCII-sum checksum field |
+| `stale_timeout_ms` | `5000` | Age (ms) before the device is declared stale |
+
+## Writing a new device node
+
+See `docs/design_base_class.md` for the full guide.  The short version:
+
+```cpp
+class MyDevice : public roship_vessel::VesselDeviceNode {
+public:
+    MyDevice() : VesselDeviceNode("my_device") {
+        if (params_.publish_ros_std)
+            pub_ = create_publisher<std_msgs::msg::Float64>("~/value", 10);
+    }
+protected:
+    void onRawData(const io_interfaces::msg::RawPacket::SharedPtr msg) override {
+        // parse msg->data, publish
+    }
+    void onDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat) override {
+        stat.add("parse_errors", parse_errors_);
+    }
+};
+```
 
 ## Contributing
 
-Thank you for considering a contribution to this package.   Please review our [CONTRIBUTING](CONTRIBUTING.md) guidelines to get started.
+See [CONTRIBUTING.md](CONTRIBUTING.md).

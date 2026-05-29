@@ -1,0 +1,48 @@
+# Replace "/**" with your node name (e.g. "lci_winch") when using --params-file.
+# "/**" works in launch-file context (<param from="..."/>) but not with ros2 run.
+/**:
+  ros__parameters:
+
+    # roship_io connection topic that delivers raw bytes to this node.
+    # Set to the ~/from_device topic of the appropriate serial/UDP/MQTT
+    # connection node, e.g. /serial_gps/from_device
+    connection_topic: ""
+
+    # Publish typed sensor_msgs / nav_msgs on ~/imu, ~/fix, ~/heading, …
+    publish_ros_std: true
+
+    # Publish connection and device health to /diagnostics at ~1 Hz
+    publish_diagnostics: true
+
+    # String shown as hardware_id in /diagnostics output
+    hardware_id: "vessel_device"
+
+    # Polling timer period in milliseconds.
+    # 0  = data-driven only — onPoll() is never called (use for NMEA streams)
+    # >0 = enables the onPoll() timer (use for request/response devices)
+    poll_ms: 0
+
+    # Age in ms after which the device is considered stale.
+    # Comms task → WARN; Device task → STALE.
+    stale_timeout_ms: 3000
+
+    # Glob filter on incoming packet data (fnmatch rules).
+    # Only matching packets are forwarded to onRawData() and count toward
+    # staleness.  Empty string passes all packets.
+    #
+    # Examples:
+    #   "$GPGGA,*"  — only GGA sentences from a GP talker
+    #   "$GP*"      — all GP talker sentences
+    #   "$??GGA,*"  — GGA from any two-character talker
+    message_filter: ""
+
+    # Strip-and-filter: removes a prepended header before passing the payload
+    # to onRawData().  The literal suffix after the last wildcard is the "anchor"
+    # that marks the end of the header.  A single trailing space after the anchor
+    # is also stripped.  Packets that don't match are dropped.
+    #
+    # Example:
+    #   data:         "WINCH 2020-10-20T00:00:12Z DYNACONLCI90i 01RD,..."
+    #   strip_filter: "WINCH*DYNACONLCI90i"
+    #   onRawData sees: "01RD,..."
+    strip_filter: ""

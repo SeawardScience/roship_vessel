@@ -1,0 +1,22 @@
+/**:
+  ros__parameters:
+
+    # roship_io connection delivering the multiplexed vessel data stream.
+    # Typically the ~/from_device topic of a serial_connection node.
+    connection_topic: "udp_device/from_device"        # e.g. /serial_vessel/from_device
+
+    # Strip the "WNCH <timestamp>Z <device_id>" header from each message.
+    # The anchor is the literal device identifier — set this to match your hardware.
+    # e.g. "WNCH*RPC-90x" or "WNCH*DYNACONLCI90i"
+    strip_filter: "WNCH*RPC-90x"
+
+    hardware_id: "RPC-90x Winch"
+    publish_ros_std: true
+    publish_diagnostics: true
+
+    # Declare stale if no matching message received within this window
+    stale_timeout_ms: 5000
+
+    # Verify the ASCII-sum checksum field in each message.
+    # Set false to silence checksum warnings on noisy links.
+    validate_checksum: true

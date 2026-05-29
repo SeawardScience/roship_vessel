@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+  <arg name="vessel_ns" default="vessel"/>
+
+  <node pkg="roship_vessel" exec="lci_winch" name="lci_winch" namespace="$(var vessel_ns)">
+    <param from="$(find-pkg-share roship_vessel)/config/lci_winch.yaml"/>
+    <param name="connection_topic" value="/udp_device/from_device"/>
+  </node>
+
+</launch>
