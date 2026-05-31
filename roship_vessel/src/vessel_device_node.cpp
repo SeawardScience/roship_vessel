@@ -178,6 +178,7 @@ void VesselDeviceNode::setupSubscription()
             ++packets_matched_;
             last_data_time_ = this->now();
             data_received_  = true;
+            last_payload_.assign(payload->data.begin(), payload->data.end());
             onRawData(payload);
         });
 
@@ -224,6 +225,7 @@ void VesselDeviceNode::commsCallback(diagnostic_updater::DiagnosticStatusWrapper
     stat.add("connection_topic",  params_.connection_topic);
     stat.add("packets_rx",        packets_rx_);
     stat.add("packets_matched",   packets_matched_);
+    stat.add("last_payload",      last_payload_);
 }
 
 void VesselDeviceNode::deviceCallback(diagnostic_updater::DiagnosticStatusWrapper& stat)

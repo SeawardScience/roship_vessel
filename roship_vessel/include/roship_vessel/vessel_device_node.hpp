@@ -146,6 +146,7 @@ private:
     rclcpp::Time last_data_time_;
     uint64_t packets_rx_      = 0;   ///< Total packets received on connection_topic
     uint64_t packets_matched_ = 0;   ///< Packets that passed message_filter
+    std::string last_payload_;        ///< Last payload string delivered to onRawData()
 
     rclcpp::Subscription<io_interfaces::msg::RawPacket>::SharedPtr data_sub_;
     rclcpp::TimerBase::SharedPtr poll_timer_;
