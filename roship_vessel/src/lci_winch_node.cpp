@@ -98,9 +98,9 @@ bool LciWinchNode::parsePayload(const std::string& raw, ParsedData& out)
         uint32_t computed = computeChecksum(payload);
         out.checksum_valid = (computed == out.checksum);
         if (!out.checksum_valid) {
-            RCLCPP_WARN(get_logger(),
-                "LCI-90i: checksum mismatch — got %u, computed %u",
-                out.checksum, computed);
+            // RCLCPP_WARN(get_logger(),
+            //     "LCI-90i: checksum mismatch — got %u, computed %u",
+            //     out.checksum, computed);
             ++checksum_errors_;
         }
     } else {
